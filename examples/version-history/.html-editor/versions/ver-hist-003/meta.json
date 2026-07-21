@@ -1,0 +1,11 @@
+{
+  "id": "ver-hist-003",
+  "version": "v1.1.1",
+  "parentId": "ver-hist-002",
+  "sealed": true,
+  "timestamp": "2026-07-20T10:00:00.000Z",
+  "metadata": {
+    "agent": "claude-code",
+    "promptSummary": "微调标题字体大小从 2.5rem 到 2.2rem，正文行高从 1.6 到 1.8"
+  }
+}

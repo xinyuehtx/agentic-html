@@ -1,0 +1,171 @@
+/* Toolbar styles */
+
+.toolbar {
+  position: relative;
+  z-index: var(--z-toolbar);
+  height: 48px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  gap: 8px;
+}
+
+.toolbar__brand {
+  font-weight: 600;
+  font-size: 14px;
+  color: #1e293b;
+  margin-right: 16px;
+  white-space: nowrap;
+}
+
+/* Mode button group */
+.toolbar__mode-group {
+  display: flex;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.toolbar__mode-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.toolbar__mode-btn:not(:last-child) {
+  border-right: 1px solid #e2e8f0;
+}
+
+.toolbar__mode-btn:hover {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.toolbar__mode-btn--active {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+.toolbar__mode-btn--active:hover {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.toolbar__mode-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Spacer */
+.toolbar__spacer {
+  flex: 1;
+}
+
+/* Action buttons */
+.toolbar__btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.toolbar__btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.toolbar__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toolbar__btn--primary {
+  background: #3b82f6;
+  color: #ffffff;
+  border-color: #3b82f6;
+}
+
+.toolbar__btn--primary:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.toolbar__btn--danger {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.toolbar__btn--danger:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.toolbar__btn--active {
+  background: #eff6ff;
+  color: #3b82f6;
+  border-color: #93c5fd;
+}
+
+/* Version info */
+.toolbar__version-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #64748b;
+  padding: 4px 8px;
+  background: #f8fafc;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.toolbar__version-badge {
+  font-weight: 600;
+  color: #334155;
+}
+
+.toolbar__sealed-icon {
+  color: #f59e0b;
+  font-size: 11px;
+}
+
+/* Connection status */
+.toolbar__status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.toolbar__status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.toolbar__status-dot--connected {
+  background: #22c55e;
+}
+
+.toolbar__status-dot--disconnected {
+  background: #ef4444;
+}

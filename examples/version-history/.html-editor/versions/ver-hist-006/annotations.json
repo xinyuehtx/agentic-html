@@ -1,0 +1,37 @@
+[
+  {
+    "id": "ann-hist-001",
+    "anchor_element": {
+      "selector": "body > section.hero > div.stats"
+    },
+    "comment": "统计数字需要添加动画效果，数字从 0 滚动到目标值",
+    "status": "pending",
+    "timestamp": "2026-07-20T11:35:00.000Z",
+    "version_id": "ver-hist-006"
+  },
+  {
+    "id": "ann-hist-002",
+    "anchor_element": {
+      "selector": "body > section.tags > div.tag-cloud"
+    },
+    "comment": "标签云需要根据文章数量调整字体大小，体现权重差异",
+    "status": "pending",
+    "timestamp": "2026-07-20T11:38:00.000Z",
+    "version_id": "ver-hist-006",
+    "screenshot": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPj/HwADBwIAMCbHYQAAAABJRU5ErkJggg==",
+    "hit_elements": [
+      {
+        "selector": "body > section.tags > div.tag-cloud > span.tag:nth-child(1)",
+        "tag": "SPAN",
+        "outerHtmlSummary": "<span class=\"tag\">TypeScript</span>",
+        "boundingRect": { "x": 320, "y": 520, "width": 100, "height": 30 }
+      },
+      {
+        "selector": "body > section.tags > div.tag-cloud > span.tag:nth-child(5)",
+        "tag": "SPAN",
+        "outerHtmlSummary": "<span class=\"tag\">MCP</span>",
+        "boundingRect": { "x": 480, "y": 520, "width": 60, "height": 30 }
+      }
+    ]
+  }
+]

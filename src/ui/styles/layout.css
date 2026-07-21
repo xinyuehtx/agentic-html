@@ -1,0 +1,135 @@
+/* Global layout styles for Agentic HTML Preview */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
+}
+
+/* === Z-index layers === */
+:root {
+  --z-toolbar: 10000;
+  --z-overlay-draw: 9000;
+  --z-overlay-interact: 8000;
+  --z-iframe: 1;
+}
+
+/* === Main layout === */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+}
+
+/* Toolbar area */
+.app-toolbar {
+  position: relative;
+  z-index: var(--z-toolbar);
+  height: 48px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Main content area */
+.app-content {
+  display: flex;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Preview area (iframe + overlay) */
+.preview-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* iframe styles */
+.preview-iframe {
+  position: relative;
+  z-index: var(--z-iframe);
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  background: #ffffff;
+}
+
+/* Overlay layer */
+.overlay-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: var(--z-overlay-interact);
+}
+
+.overlay-container--browse {
+  pointer-events: none;
+}
+
+.overlay-container--annotate {
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+/* Sidebar */
+.app-sidebar {
+  width: 320px;
+  min-width: 320px;
+  height: 100%;
+  overflow-y: auto;
+  background: #f8fafc;
+  border-left: 1px solid #e2e8f0;
+}
+
+/* Responsive: hide sidebar on small screens */
+@media (max-width: 768px) {
+  .app-sidebar {
+    display: none;
+  }
+}
+
+/* Connection status indicator */
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.connection-status__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.connection-status__dot--connected {
+  background: #22c55e;
+}
+
+.connection-status__dot--disconnected {
+  background: #ef4444;
+}

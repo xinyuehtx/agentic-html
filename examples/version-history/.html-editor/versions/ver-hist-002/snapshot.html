@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechBlog - 技术博客</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #333; line-height: 1.6; }
+    header { background: #fff; border-bottom: 1px solid #e9ecef; padding: 16px 40px; display: flex; align-items: center; justify-content: space-between; }
+    header .logo { font-size: 1.4rem; font-weight: 700; color: #1a1a2e; }
+    header nav a { margin-left: 24px; color: #555; text-decoration: none; }
+    header nav a:hover { color: #1a73e8; }
+    .hero {
+      padding: 60px 40px;
+      text-align: center;
+      background: #f8f9fa;
+    }
+    .hero h1 { font-size: 2.5rem; margin-bottom: 16px; color: #1a73e8; }
+    .hero p { font-size: 1.1rem; color: #666; max-width: 600px; margin: 0 auto 32px; }
+    .hero .btn { display: inline-block; padding: 12px 32px; background: #1a73e8; color: #fff; border-radius: 6px; text-decoration: none; font-weight: 500; }
+    .posts { max-width: 800px; margin: 0 auto; padding: 48px 20px; }
+    .posts h2 { margin-bottom: 24px; }
+    .post-card { border: 1px solid #e9ecef; border-radius: 8px; padding: 24px; margin-bottom: 16px; }
+    .post-card h3 { margin-bottom: 8px; }
+    .post-card .meta { color: #888; font-size: 0.85rem; margin-bottom: 12px; }
+    .post-card p { color: #555; }
+    footer { background: #1a1a2e; color: #aaa; text-align: center; padding: 32px; margin-top: 48px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">TechBlog</div>
+    <nav>
+      <a href="#home">首页</a>
+      <a href="#posts">文章</a>
+      <a href="#about">关于</a>
+    </nav>
+  </header>
+  <section class="hero">
+    <h1>探索技术的无限可能</h1>
+    <p>分享前沿技术见解、实战经验和开源项目，与全球开发者共同成长</p>
+    <a href="#subscribe" class="btn">订阅更新</a>
+  </section>
+  <section class="posts">
+    <h2>最新文章</h2>
+    <article class="post-card">
+      <h3>构建高性能 Web 应用的 10 个最佳实践</h3>
+      <div class="meta">2026-07-15 · 阅读 8 分钟</div>
+      <p>从代码分割到缓存策略，全面提升你的 Web 应用性能...</p>
+    </article>
+    <article class="post-card">
+      <h3>深入理解 TypeScript 类型体操</h3>
+      <div class="meta">2026-07-10 · 阅读 12 分钟</div>
+      <p>掌握条件类型、映射类型和模板字面量类型的高级用法...</p>
+    </article>
+    <article class="post-card">
+      <h3>MCP 协议：AI Agent 的标准通信层</h3>
+      <div class="meta">2026-07-05 · 阅读 6 分钟</div>
+      <p>解析 Model Context Protocol 如何统一 AI 工具调用标准...</p>
+    </article>
+  </section>
+  <footer>
+    <p>&copy; 2026 TechBlog. All rights reserved.</p>
+  </footer>
+</body>
+</html>

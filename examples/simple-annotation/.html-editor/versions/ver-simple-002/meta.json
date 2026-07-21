@@ -1,0 +1,11 @@
+{
+  "id": "ver-simple-002",
+  "version": "v1.1",
+  "parentId": "ver-simple-001",
+  "sealed": false,
+  "timestamp": "2026-07-20T10:30:00.000Z",
+  "metadata": {
+    "agent": "claude-code",
+    "promptSummary": "根据标注反馈修改标题颜色为品牌蓝，缩小 hero 区域间距"
+  }
+}

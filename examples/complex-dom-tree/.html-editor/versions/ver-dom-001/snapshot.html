@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>后台管理系统</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
+    /* 顶部导航 */
+    .top-nav { background: #1a1a2e; color: #fff; padding: 0 24px; height: 56px; display: flex; align-items: center; }
+    .top-nav .logo { font-size: 1.2rem; font-weight: 700; margin-right: 40px; }
+    .top-nav .nav-menu { display: flex; list-style: none; gap: 8px; }
+    .top-nav .nav-menu > li { position: relative; padding: 8px 16px; cursor: pointer; border-radius: 4px; }
+    .top-nav .nav-menu > li:hover { background: rgba(255,255,255,0.1); }
+    .top-nav .nav-menu .submenu { display: none; position: absolute; top: 100%; left: 0; background: #fff; color: #333; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 160px; z-index: 100; }
+    .top-nav .nav-menu .submenu li { padding: 10px 16px; }
+    .top-nav .nav-menu .submenu .sub-submenu { display: none; position: absolute; left: 100%; top: 0; background: #fff; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 140px; }
+    .top-nav .nav-menu .submenu .sub-submenu li { padding: 8px 14px; }
+    /* 布局 */
+    .layout { display: flex; flex: 1; }
+    /* 左侧边栏 */
+    .sidebar { width: 240px; background: #f8f9fa; border-right: 1px solid #e9ecef; padding: 16px 0; overflow-y: auto; }
+    .sidebar .panel { border-bottom: 1px solid #e9ecef; }
+    .sidebar .panel-header { padding: 12px 20px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+    .sidebar .panel-header .arrow { transition: transform 0.2s; }
+    .sidebar .panel-body { padding: 8px 20px 16px; }
+    .sidebar .panel-body ul { list-style: none; }
+    .sidebar .panel-body ul li { padding: 8px 12px; border-radius: 4px; cursor: pointer; }
+    .sidebar .panel-body ul li:hover { background: #e9ecef; }
+    .sidebar .panel-body ul li.active { background: #1a73e8; color: #fff; }
+    /* 主内容区 */
+    .main-content { flex: 1; padding: 24px; overflow-y: auto; }
+    .page-title { font-size: 1.5rem; margin-bottom: 20px; }
+    /* 数据表格 */
+    .data-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e9ecef; }
+    .data-table th { background: #f8f9fa; font-weight: 600; }
+    .data-table tbody tr:hover { background: #f1f3f5; }
+    .data-table .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; }
+    .data-table .status-active { background: #d3f9d8; color: #2b8a3e; }
+    .data-table .status-inactive { background: #ffe3e3; color: #c92a2a; }
+    /* 分页器 */
+    .pagination { display: flex; gap: 4px; align-items: center; margin-bottom: 32px; }
+    .pagination button { padding: 6px 12px; border: 1px solid #dee2e6; border-radius: 4px; background: #fff; cursor: pointer; }
+    .pagination button.active { background: #1a73e8; color: #fff; border-color: #1a73e8; }
+    .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+    /* 表单区 */
+    .form-section { background: #fff; border: 1px solid #e9ecef; border-radius: 8px; padding: 24px; margin-bottom: 32px; }
+    .form-section h3 { margin-bottom: 16px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 0.9rem; }
+    .form-group textarea { min-height: 80px; resize: vertical; }
+    .checkbox-group, .radio-group { display: flex; gap: 16px; flex-wrap: wrap; }
+    .checkbox-group label, .radio-group label { display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer; }
+    /* 嵌套列表 */
+    .nested-list { margin-bottom: 32px; }
+    .nested-list h3 { margin-bottom: 12px; }
+    .nested-list ul { list-style: disc; padding-left: 24px; }
+    .nested-list ul ul { list-style: circle; }
+    .nested-list ul ul ul { list-style: square; }
+    .nested-list li { padding: 4px 0; }
+    /* 模态框 */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal { background: #fff; border-radius: 12px; padding: 32px; max-width: 480px; width: 90%; }
+    .modal h2 { margin-bottom: 16px; }
+    .modal p { color: #666; margin-bottom: 24px; }
+    .modal .modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
+    .modal .modal-actions button { padding: 8px 20px; border-radius: 6px; border: none; cursor: pointer; }
+    .modal .btn-primary { background: #1a73e8; color: #fff; }
+    .modal .btn-secondary { background: #e9ecef; color: #333; }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏（3级菜单） -->
+  <nav class="top-nav">
+    <div class="logo">AdminPanel</div>
+    <ul class="nav-menu">
+      <li>
+        首页
+      </li>
+      <li>
+        用户管理
+        <ul class="submenu">
+          <li>用户列表</li>
+          <li>
+            角色权限
+            <ul class="sub-submenu">
+              <li>角色管理</li>
+              <li>权限配置</li>
+              <li>审计日志</li>
+            </ul>
+          </li>
+          <li>用户组</li>
+        </ul>
+      </li>
+      <li>
+        数据中心
+        <ul class="submenu">
+          <li>数据概览</li>
+          <li>
+            报表管理
+            <ul class="sub-submenu">
+              <li>日报</li>
+              <li>周报</li>
+              <li>月报</li>
+            </ul>
+          </li>
+          <li>数据导出</li>
+        </ul>
+      </li>
+      <li>系统设置</li>
+    </ul>
+  </nav>
+
+  <div class="layout">
+    <!-- 左侧边栏（折叠面板） -->
+    <aside class="sidebar">
+      <div class="panel">
+        <div class="panel-header">
+          <span>快捷操作</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="panel-body">
+          <ul>
+            <li class="active">创建用户</li>
+            <li>批量导入</li>
+            <li>数据备份</li>
+          </ul>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <span>常用筛选</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="panel-body">
+          <ul>
+            <li>活跃用户</li>
+            <li>待审核</li>
+            <li>已禁用</li>
+            <li>VIP 用户</li>
+          </ul>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <span>系统状态</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="panel-body">
+          <ul>
+            <li>CPU: 45%</li>
+            <li>内存: 72%</li>
+            <li>磁盘: 58%</li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <h1 class="page-title">用户管理</h1>
+
+      <!-- 数据表格 -->
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>用户名</th>
+            <th>邮箱</th>
+            <th>角色</th>
+            <th>状态</th>
+            <th>注册时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1001</td>
+            <td>张三</td>
+            <td>zhangsan@example.com</td>
+            <td>管理员</td>
+            <td><span class="status-badge status-active">活跃</span></td>
+            <td>2026-01-15</td>
+            <td><button>编辑</button> <button>禁用</button></td>
+          </tr>
+          <tr>
+            <td>1002</td>
+            <td>李四</td>
+            <td>lisi@example.com</td>
+            <td>编辑者</td>
+            <td><span class="status-badge status-active">活跃</span></td>
+            <td>2026-02-20</td>
+            <td><button>编辑</button> <button>禁用</button></td>
+          </tr>
+          <tr>
+            <td>1003</td>
+            <td>王五</td>
+            <td>wangwu@example.com</td>
+            <td>查看者</td>
+            <td><span class="status-badge status-inactive">已禁用</span></td>
+            <td>2026-03-10</td>
+            <td><button>编辑</button> <button>启用</button></td>
+          </tr>
+          <tr>
+            <td>1004</td>
+            <td>赵六</td>
+            <td>zhaoliu@example.com</td>
+            <td>编辑者</td>
+            <td><span class="status-badge status-active">活跃</span></td>
+            <td>2026-04-05</td>
+            <td><button>编辑</button> <button>禁用</button></td>
+          </tr>
+          <tr>
+            <td>1005</td>
+            <td>孙七</td>
+            <td>sunqi@example.com</td>
+            <td>管理员</td>
+            <td><span class="status-badge status-active">活跃</span></td>
+            <td>2026-05-12</td>
+            <td><button>编辑</button> <button>禁用</button></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 分页器 -->
+      <div class="pagination">
+        <button disabled>上一页</button>
+        <button class="active">1</button>
+        <button>2</button>
+        <button>3</button>
+        <button>4</button>
+        <button>5</button>
+        <button>下一页</button>
+      </div>
+
+      <!-- 表单区 -->
+      <section class="form-section">
+        <h3>新增用户</h3>
+        <div class="form-group">
+          <label for="username">用户名</label>
+          <input type="text" id="username" name="username" placeholder="请输入用户名">
+        </div>
+        <div class="form-group">
+          <label for="email">邮箱</label>
+          <input type="email" id="email" name="email" placeholder="请输入邮箱地址">
+        </div>
+        <div class="form-group">
+          <label for="role">角色</label>
+          <select id="role" name="role">
+            <option value="">请选择角色</option>
+            <option value="admin">管理员</option>
+            <option value="editor">编辑者</option>
+            <option value="viewer">查看者</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>权限范围</label>
+          <div class="checkbox-group">
+            <label><input type="checkbox" name="perm" value="read"> 读取</label>
+            <label><input type="checkbox" name="perm" value="write"> 写入</label>
+            <label><input type="checkbox" name="perm" value="delete"> 删除</label>
+            <label><input type="checkbox" name="perm" value="admin"> 管理</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>通知方式</label>
+          <div class="radio-group">
+            <label><input type="radio" name="notify" value="email"> 邮件</label>
+            <label><input type="radio" name="notify" value="sms"> 短信</label>
+            <label><input type="radio" name="notify" value="both"> 两者都有</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="bio">备注</label>
+          <textarea id="bio" name="bio" placeholder="可选，输入用户备注信息"></textarea>
+        </div>
+        <button class="btn-primary" style="padding:10px 24px;border:none;border-radius:6px;background:#1a73e8;color:#fff;cursor:pointer;">提交</button>
+      </section>
+
+      <!-- 嵌套列表 -->
+      <section class="nested-list">
+        <h3>组织架构</h3>
+        <ul>
+          <li>技术部
+            <ul>
+              <li>前端组
+                <ul>
+                  <li>Web 应用</li>
+                  <li>移动端 H5</li>
+                  <li>组件库维护</li>
+                </ul>
+              </li>
+              <li>后端组
+                <ul>
+                  <li>API 服务</li>
+                  <li>数据库管理</li>
+                  <li>微服务架构</li>
+                </ul>
+              </li>
+              <li>测试组
+                <ul>
+                  <li>自动化测试</li>
+                  <li>性能测试</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>产品部
+            <ul>
+              <li>产品策划
+                <ul>
+                  <li>需求分析</li>
+                  <li>竞品研究</li>
+                </ul>
+              </li>
+              <li>用户体验
+                <ul>
+                  <li>交互设计</li>
+                  <li>视觉设计</li>
+                  <li>用户研究</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>运营部
+            <ul>
+              <li>内容运营</li>
+              <li>用户增长</li>
+              <li>数据分析</li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <!-- 模态框（隐藏状态） -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+      <h2>确认操作</h2>
+      <p>确定要执行此操作吗？此操作不可撤销。</p>
+      <div class="modal-actions">
+        <button class="btn-secondary">取消</button>
+        <button class="btn-primary">确认</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

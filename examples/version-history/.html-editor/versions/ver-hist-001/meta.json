@@ -1,0 +1,11 @@
+{
+  "id": "ver-hist-001",
+  "version": "v1",
+  "parentId": null,
+  "sealed": true,
+  "timestamp": "2026-07-20T09:00:00.000Z",
+  "metadata": {
+    "agent": "claude-code",
+    "promptSummary": "技术博客初始版本，包含导航、hero 区域和文章列表"
+  }
+}

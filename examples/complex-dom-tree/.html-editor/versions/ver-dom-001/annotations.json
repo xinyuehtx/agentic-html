@@ -1,0 +1,73 @@
+[
+  {
+    "id": "ann-dom-001",
+    "anchor_element": {
+      "selector": "body > nav.top-nav"
+    },
+    "comment": "导航栏背景色太深，改为 #2d3748 更柔和",
+    "status": "pending",
+    "timestamp": "2026-07-20T11:05:00.000Z",
+    "version_id": "ver-dom-001"
+  },
+  {
+    "id": "ann-dom-002",
+    "anchor_element": {
+      "selector": "body > div.layout > main.main-content > table.data-table > tbody > tr:nth-child(3)"
+    },
+    "comment": "已禁用用户这一行需要添加灰色背景以区分状态",
+    "status": "pending",
+    "timestamp": "2026-07-20T11:08:00.000Z",
+    "version_id": "ver-dom-001"
+  },
+  {
+    "id": "ann-dom-003",
+    "anchor_element": {
+      "selector": "body > div.layout > main.main-content > section.nested-list > ul > li:nth-child(1) > ul > li:nth-child(1) > ul > li:nth-child(3)"
+    },
+    "comment": "「组件库维护」应该改为「设计系统」，更准确反映职能",
+    "status": "pending",
+    "timestamp": "2026-07-20T11:10:00.000Z",
+    "version_id": "ver-dom-001"
+  },
+  {
+    "id": "ann-dom-004",
+    "anchor_element": {
+      "selector": "body > div.layout > main.main-content > section.form-section > div.form-group:nth-child(4) > div.checkbox-group"
+    },
+    "comment": "权限选项需要增加「审批」权限",
+    "status": "pending",
+    "timestamp": "2026-07-20T11:12:00.000Z",
+    "version_id": "ver-dom-001"
+  },
+  {
+    "id": "ann-dom-005",
+    "anchor_element": {
+      "selector": "body > div.layout > main.main-content"
+    },
+    "comment": "表格上方需要添加搜索栏和筛选按钮",
+    "status": "pending",
+    "timestamp": "2026-07-20T11:15:00.000Z",
+    "version_id": "ver-dom-001",
+    "screenshot": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPj/HwADBwIAMCbHYQAAAABJRU5ErkJggg==",
+    "hit_elements": [
+      {
+        "selector": "body > div.layout > main.main-content > h1.page-title",
+        "tag": "H1",
+        "outerHtmlSummary": "<h1 class=\"page-title\">用户管理</h1>",
+        "boundingRect": { "x": 264, "y": 24, "width": 200, "height": 36 }
+      },
+      {
+        "selector": "body > div.layout > main.main-content > table.data-table",
+        "tag": "TABLE",
+        "outerHtmlSummary": "<table class=\"data-table\">...</table>",
+        "boundingRect": { "x": 264, "y": 80, "width": 900, "height": 320 }
+      },
+      {
+        "selector": "body > div.layout > main.main-content > div.pagination",
+        "tag": "DIV",
+        "outerHtmlSummary": "<div class=\"pagination\">...</div>",
+        "boundingRect": { "x": 264, "y": 420, "width": 300, "height": 36 }
+      }
+    ]
+  }
+]

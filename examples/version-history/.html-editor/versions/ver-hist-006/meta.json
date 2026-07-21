@@ -1,0 +1,11 @@
+{
+  "id": "ver-hist-006",
+  "version": "v2.1",
+  "parentId": "ver-hist-005",
+  "sealed": false,
+  "timestamp": "2026-07-20T11:30:00.000Z",
+  "metadata": {
+    "agent": "claude-code",
+    "promptSummary": "基于 v2 的工作版本，待处理标注反馈"
+  }
+}

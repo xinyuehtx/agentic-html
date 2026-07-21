@@ -1,0 +1,18 @@
+{
+  "versions": [
+    {
+      "id": "ver-simple-001",
+      "version": "v1",
+      "parentId": null,
+      "sealed": true,
+      "timestamp": "2026-07-20T10:00:00.000Z"
+    },
+    {
+      "id": "ver-simple-002",
+      "version": "v1.1",
+      "parentId": "ver-simple-001",
+      "sealed": false,
+      "timestamp": "2026-07-20T10:30:00.000Z"
+    }
+  ]
+}

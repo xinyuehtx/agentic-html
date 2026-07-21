@@ -1,0 +1,11 @@
+{
+  "id": "ver-dom-001",
+  "version": "v1",
+  "parentId": null,
+  "sealed": true,
+  "timestamp": "2026-07-20T11:00:00.000Z",
+  "metadata": {
+    "agent": "claude-code",
+    "promptSummary": "后台管理面板初始版本，包含导航、侧边栏、表格、表单和嵌套列表"
+  }
+}

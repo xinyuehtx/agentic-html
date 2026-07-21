@@ -1,0 +1,11 @@
+{
+  "id": "ver-hist-004",
+  "version": "v1.2",
+  "parentId": "ver-hist-001",
+  "sealed": true,
+  "timestamp": "2026-07-20T10:30:00.000Z",
+  "metadata": {
+    "agent": "claude-code",
+    "promptSummary": "从 v1 分支，修改 CTA 按钮为圆角渐变样式，增加 hover 动画"
+  }
+}

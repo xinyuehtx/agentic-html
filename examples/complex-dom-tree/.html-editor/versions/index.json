@@ -1,0 +1,11 @@
+{
+  "versions": [
+    {
+      "id": "ver-dom-001",
+      "version": "v1",
+      "parentId": null,
+      "sealed": true,
+      "timestamp": "2026-07-20T11:00:00.000Z"
+    }
+  ]
+}

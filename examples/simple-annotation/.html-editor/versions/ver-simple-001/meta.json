@@ -1,0 +1,11 @@
+{
+  "id": "ver-simple-001",
+  "version": "v1",
+  "parentId": null,
+  "sealed": true,
+  "timestamp": "2026-07-20T10:00:00.000Z",
+  "metadata": {
+    "agent": "claude-code",
+    "promptSummary": "初始产品着陆页，包含 hero 区域和三栏特性展示"
+  }
+}

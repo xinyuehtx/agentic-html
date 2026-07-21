@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechBlog - 技术博客</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #333; line-height: 1.6; }
+    header { background: transparent; position: absolute; top: 0; left: 0; right: 0; padding: 16px 40px; display: flex; align-items: center; justify-content: space-between; z-index: 10; }
+    header .logo { font-size: 1.4rem; font-weight: 700; color: #fff; }
+    header nav a { margin-left: 24px; color: rgba(255,255,255,0.9); text-decoration: none; }
+    header nav a:hover { color: #fff; }
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 40px 80px;
+      text-align: center;
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+      color: #fff;
+    }
+    .hero h1 { font-size: 3.5rem; margin-bottom: 20px; font-weight: 800; }
+    .hero p { font-size: 1.2rem; opacity: 0.85; max-width: 700px; margin: 0 auto 40px; }
+    .hero .btn { display: inline-block; padding: 16px 48px; background: #fff; color: #302b63; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1.1rem; transition: transform 0.2s; }
+    .hero .btn:hover { transform: scale(1.05); }
+    .hero .stats { display: flex; gap: 48px; margin-top: 60px; }
+    .hero .stat-item { text-align: center; }
+    .hero .stat-item .number { font-size: 2.5rem; font-weight: 800; }
+    .hero .stat-item .label { font-size: 0.9rem; opacity: 0.7; margin-top: 4px; }
+    .tags { padding: 40px; text-align: center; background: #f8f9fa; }
+    .tags h2 { margin-bottom: 16px; }
+    .tags .tag-cloud { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 600px; margin: 0 auto; }
+    .tags .tag { padding: 6px 16px; background: #e9ecef; border-radius: 20px; font-size: 0.85rem; color: #555; }
+    .posts { max-width: 800px; margin: 0 auto; padding: 48px 20px; }
+    .posts h2 { margin-bottom: 24px; }
+    .post-card { border: 1px solid #e9ecef; border-radius: 8px; padding: 24px; margin-bottom: 16px; }
+    .post-card h3 { margin-bottom: 8px; }
+    .post-card .meta { color: #888; font-size: 0.85rem; margin-bottom: 12px; }
+    .post-card p { color: #555; }
+    footer { background: #1a1a2e; color: #aaa; text-align: center; padding: 32px; margin-top: 48px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">TechBlog</div>
+    <nav>
+      <a href="#home">首页</a>
+      <a href="#posts">文章</a>
+      <a href="#about">关于</a>
+    </nav>
+  </header>
+  <section class="hero">
+    <h1>探索技术的无限可能</h1>
+    <p>与全球 10,000+ 开发者一起，分享前沿技术见解、实战经验和开源项目</p>
+    <a href="#subscribe" class="btn">立即加入</a>
+    <div class="stats">
+      <div class="stat-item">
+        <div class="number">128</div>
+        <div class="label">技术文章</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">10K+</div>
+        <div class="label">订阅读者</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">56</div>
+        <div class="label">开源项目</div>
+      </div>
+    </div>
+  </section>
+  <section class="tags">
+    <h2>热门标签</h2>
+    <div class="tag-cloud">
+      <span class="tag">TypeScript</span>
+      <span class="tag">React</span>
+      <span class="tag">Node.js</span>
+      <span class="tag">AI/ML</span>
+      <span class="tag">MCP</span>
+      <span class="tag">Rust</span>
+      <span class="tag">WebAssembly</span>
+      <span class="tag">DevOps</span>
+    </div>
+  </section>
+  <section class="posts">
+    <h2>最新文章</h2>
+    <article class="post-card">
+      <h3>构建高性能 Web 应用的 10 个最佳实践</h3>
+      <div class="meta">2026-07-15 · 阅读 8 分钟</div>
+      <p>从代码分割到缓存策略，全面提升你的 Web 应用性能...</p>
+    </article>
+    <article class="post-card">
+      <h3>深入理解 TypeScript 类型体操</h3>
+      <div class="meta">2026-07-10 · 阅读 12 分钟</div>
+      <p>掌握条件类型、映射类型和模板字面量类型的高级用法...</p>
+    </article>
+    <article class="post-card">
+      <h3>MCP 协议：AI Agent 的标准通信层</h3>
+      <div class="meta">2026-07-05 · 阅读 6 分钟</div>
+      <p>解析 Model Context Protocol 如何统一 AI 工具调用标准...</p>
+    </article>
+  </section>
+  <footer>
+    <p>&copy; 2026 TechBlog. All rights reserved.</p>
+  </footer>
+</body>
+</html>

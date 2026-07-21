@@ -1,0 +1,43 @@
+[
+  {
+    "id": "ann-simple-001",
+    "anchor_element": {
+      "selector": "body > section.hero > h1"
+    },
+    "comment": "标题颜色改为品牌蓝 #1a73e8",
+    "status": "pending",
+    "timestamp": "2026-07-20T10:05:00.000Z",
+    "version_id": "ver-simple-001"
+  },
+  {
+    "id": "ann-simple-002",
+    "anchor_element": {
+      "selector": "body > section.hero"
+    },
+    "comment": "hero 区域间距太大，缩小到 40px",
+    "status": "pending",
+    "timestamp": "2026-07-20T10:08:00.000Z",
+    "version_id": "ver-simple-001",
+    "screenshot": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPj/HwADBwIAMCbHYQAAAABJRU5ErkJggg==",
+    "hit_elements": [
+      {
+        "selector": "body > section.hero > h1",
+        "tag": "H1",
+        "outerHtmlSummary": "<h1>ProductX - 让效率翻倍</h1>",
+        "boundingRect": { "x": 200, "y": 80, "width": 560, "height": 48 }
+      },
+      {
+        "selector": "body > section.hero > p.subtitle",
+        "tag": "P",
+        "outerHtmlSummary": "<p class=\"subtitle\">智能工作流引擎，帮助团队快速交付高质量产品</p>",
+        "boundingRect": { "x": 280, "y": 144, "width": 400, "height": 24 }
+      },
+      {
+        "selector": "body > section.hero > a.cta-button",
+        "tag": "A",
+        "outerHtmlSummary": "<a href=\"#signup\" class=\"cta-button\">免费试用</a>",
+        "boundingRect": { "x": 380, "y": 208, "width": 160, "height": 48 }
+      }
+    ]
+  }
+]
