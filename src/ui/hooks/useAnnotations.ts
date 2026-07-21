@@ -35,6 +35,8 @@ export interface UseAnnotationsState {
   updateAnnotation: (id: string, update: { comment: string }) => Promise<void>;
   deleteAnnotation: (id: string) => Promise<void>;
   submitAnnotations: (versionId: string) => Promise<void>;
+  batchDelete: (ids: string[]) => Promise<void>;
+  batchSubmit: (versionId: string, ids: string[]) => Promise<void>;
 }
 
 /**
@@ -148,6 +150,44 @@ export function useAnnotations(): UseAnnotationsState {
     }
   }, []);
 
+  const batchDelete = useCallback(async (ids: string[]) => {
+    setError(null);
+    // Optimistic remove
+    const prev = annotations;
+    const idSet = new Set(ids);
+    setAnnotations((current) => current.filter((a) => !idSet.has(a.id)));
+
+    try {
+      const res = await fetch('/api/annotations/batch', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids }),
+      });
+      if (!res.ok) throw new Error(`Failed to batch delete annotations: ${res.status}`);
+    } catch (err) {
+      // Rollback
+      setAnnotations(prev);
+      setError(err instanceof Error ? err.message : 'Unknown error');
+    }
+  }, [annotations]);
+
+  const batchSubmit = useCallback(async (versionId: string, ids: string[]) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/annotations/batch/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ version_id: versionId, ids }),
+      });
+      if (!res.ok) throw new Error(`Failed to batch submit annotations: ${res.status}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     annotations,
     loading,
@@ -157,5 +197,7 @@ export function useAnnotations(): UseAnnotationsState {
     updateAnnotation,
     deleteAnnotation,
     submitAnnotations,
+    batchDelete,
+    batchSubmit,
   };
 }

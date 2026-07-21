@@ -214,3 +214,80 @@ UI (React + WebSocket)
 | `uuid` | 生成唯一 ID |
 | `react` / `react-dom` | UI 框架 |
 | `html2canvas` | 截图能力 |
+
+## 快捷键与批量操作
+
+### 快捷键
+用户可通过快捷键快速操作，无需点击按钮：
+- `1` / `2` / `3`：快速切换 Browse / Ink / Select 模式
+- `Ctrl/Cmd+Enter`：快速提交当前标注
+- `Escape`：取消当前操作，返回 Browse 模式
+- `Delete/Backspace`：删除选中的标注
+- `Ctrl/Cmd+A`：全选所有标注
+- `Shift+Click`：范围多选标注
+
+### 批量操作模式
+当用户需要一次性提交多个修改建议时：
+1. 用户通过 Shift+Click 或 Ctrl/Cmd+A 选中多个标注
+2. 侧边栏底部出现批量操作栏：Delete Selected / Submit Selected / Apply All
+3. 点击 "Apply All" 将所有标注一次性提交给 Agent
+4. Agent 收到批量标注后，应逐一分析并生成对应 patches
+5. 使用 `apply_patch` 工具一次性应用所有 patches（patches 数组支持多个操作）
+
+### Agent 批量处理指南
+- 收到多个标注时，分析每个标注的意图和目标元素
+- 将所有修改合并到一个 `apply_patch` 调用中（patches 数组）
+- 优先处理结构性变化（删除、新增），再处理样式变化
+- 如果标注之间有冲突（同一元素不同修改），以最后一个标注为准
+
+## 自动验证模式
+
+### 工作流程
+每次 `apply_patch` 执行后，系统自动进行双重验证：
+1. **DOM 结构对比**：使用 Cheerio 解析前后 HTML，检测意外的元素增删、属性变化
+2. **视觉截图对比**：使用 Playwright 渲染前后版本截图，通过 pixelmatch 像素级检测视觉差异
+
+验证结果会：
+- 附加在 `apply_patch` 的返回结果中（`verification` 字段）
+- 如果检测到异常，通过 MCP notification（`verification_alert`）主动推送给 Agent
+
+### "预期变化" vs "意外变化"
+- **预期变化**：patches 中 selector 命中的元素发生的变化
+- **意外变化**：未被任何 patch selector 覆盖的元素发生的变化（可能是副作用）
+
+### Agent 响应指南
+收到 `notifications/verification_alert` 时：
+1. 查看 `summary` 了解问题概要
+2. 查看 `unexpectedChanges` 确认意外变化的具体内容和 severity
+3. 查看 `visualDiff.diffPercentage` 评估视觉影响程度
+
+**决策建议**：
+- `diffPercentage < 1%` 且无 `error` 级别变化 → 可安全忽略
+- 有 `error` 级别意外变化（如元素被误删）→ 应立即修复
+- `diffPercentage > 5%` 且有意外区域 → 建议修复后重新验证
+- 修复后系统会自动再次验证，形成验证-修复闭环
+
+### verification_alert 通知结构
+```json
+{
+  "method": "notifications/verification_alert",
+  "params": {
+    "versionId": "string",
+    "passed": false,
+    "summary": "2 expected change(s), 1 unexpected change(s), visual diff: 3.2%, FAILED",
+    "unexpectedChanges": [
+      {
+        "type": "removed",
+        "selector": ".nav-bar",
+        "description": "Element .nav-bar was removed",
+        "severity": "error",
+        "expected": false
+      }
+    ],
+    "visualDiff": {
+      "diffPercentage": 3.2,
+      "diffImagePath": ".html-editor/verification/diff-xxx.png"
+    }
+  }
+}
+```

@@ -272,6 +272,59 @@ export class AnnotationService {
   }
 
   /**
+   * Delete multiple annotations by ID.
+   * Throws if version is sealed.
+   */
+  async deleteBatch(annotationIds: string[]): Promise<void> {
+    for (const id of annotationIds) {
+      await this.delete(id);
+    }
+  }
+
+  /**
+   * Submit a batch of specific annotations for the given version.
+   * Exports only the specified annotations as markdown.
+   */
+  async submitBatch(versionId: string, annotationIds: string[]): Promise<AnnotationExportResult> {
+    const entry = this.versionStore.get(versionId);
+
+    if (!entry) {
+      throw new HtmlEditorError(
+        ErrorCodes.ANNOTATION_VERSION_NOT_FOUND,
+        `Version '${versionId}' not found`,
+        'annotation'
+      );
+    }
+
+    if (entry.sealed) {
+      throw new HtmlEditorError(
+        ErrorCodes.ANNOTATION_VERSION_SEALED,
+        `Version '${versionId}' is sealed and cannot be modified`,
+        'annotation'
+      );
+    }
+
+    const idSet = new Set(annotationIds);
+    const selectedAnnotations = entry.annotations.filter(a => idSet.has(a.id));
+
+    if (selectedAnnotations.length === 0) {
+      throw new HtmlEditorError(
+        ErrorCodes.ANNOTATION_EMPTY,
+        `No matching annotations found for the given IDs`,
+        'annotation'
+      );
+    }
+
+    const content = this.generateMarkdown(selectedAnnotations, true);
+
+    return {
+      content,
+      format: 'markdown',
+      annotationCount: selectedAnnotations.length,
+    };
+  }
+
+  /**
    * Export annotations in the specified format.
    */
   async export(

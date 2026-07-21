@@ -12,10 +12,12 @@ import {
   PatchFailure,
   VersionDiff,
   DiffHunk,
+  VerificationResult,
 } from './types.js';
 import { HtmlEditorError, ErrorCodes } from './errors.js';
 import { VersionService } from './version.service.js';
 import { AnnotationService } from './annotation.service.js';
+import { VerificationService } from './verification.service.js';
 
 const VALID_ACTIONS: PatchAction[] = ['replace', 'delete', 'insert_before', 'insert_after', 'modify_style'];
 
@@ -38,9 +40,11 @@ const DEFAULT_HTML = `<!DOCTYPE html>
 
 export class PatchService {
   private versionService: VersionService;
+  private verificationService?: VerificationService;
 
-  constructor(versionService?: VersionService) {
+  constructor(versionService?: VersionService, verificationService?: VerificationService) {
     this.versionService = versionService || new VersionService();
+    this.verificationService = verificationService;
     // Register default version for backward compatibility with unit tests
     VersionService.registerDefaultVersion('ver-001', DEFAULT_HTML);
   }
@@ -106,11 +110,22 @@ export class PatchService {
     // Compute diff
     const diff = this.computeDiff(originalHtml, newHtml);
 
+    // Auto-verify: DOM + Visual comparison
+    let verification: VerificationResult | undefined;
+    if (this.verificationService) {
+      try {
+        verification = await this.verificationService.verify(originalHtml, newHtml, patches);
+      } catch {
+        // Verification failure should not block patch application
+      }
+    }
+
     return {
       newVersionId: newVersion.id,
       diff,
       appliedPatches: appliedCount,
       failedPatches,
+      verification,
     };
   }
 

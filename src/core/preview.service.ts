@@ -3,9 +3,10 @@
  * Provides start, stop, refresh, getSession, and listSessions operations.
  */
 
-import { PreviewSession, PreviewOptions } from './types.js';
+import { PreviewSession, PreviewOptions, PatchResult } from './types.js';
 import { HtmlEditorError, ErrorCodes } from './errors.js';
 import { VersionService } from './version.service.js';
+import { AnnotationService } from './annotation.service.js';
 import express from 'express';
 import { WebSocketServer } from 'ws';
 import { watch } from 'chokidar';
@@ -96,6 +97,9 @@ export class PreviewService {
 
     // 7. Start Express HTTP server
     const app = express();
+    app.use(express.json());
+
+    const annotationService = new AnnotationService(this.versionService);
 
     app.get('/preview', (_req: any, res: any) => {
       res.type('html').send(this.getPreviewShell(version.id));
@@ -107,6 +111,26 @@ export class PreviewService {
         res.type('html').send(v.htmlContent);
       } else {
         res.status(404).json({ error: 'Version not found' });
+      }
+    });
+
+    app.delete('/api/annotations/batch', async (req: any, res: any) => {
+      try {
+        const { ids } = req.body;
+        await annotationService.deleteBatch(ids);
+        res.json({ success: true, deleted: ids.length });
+      } catch (err) {
+        res.status(400).json({ error: (err as Error).message });
+      }
+    });
+
+    app.post('/api/annotations/batch/submit', async (req: any, res: any) => {
+      try {
+        const { version_id, ids } = req.body;
+        const result = await annotationService.submitBatch(version_id, ids);
+        res.json(result);
+      } catch (err) {
+        res.status(400).json({ error: (err as Error).message });
       }
     });
 
@@ -220,6 +244,27 @@ export class PreviewService {
           client.send(message);
         }
       });
+    }
+  }
+
+  /**
+   * Broadcast verification result to all WebSocket clients of all sessions.
+   */
+  broadcastVerification(result: PatchResult): void {
+    if (!result.verification) return;
+    const message = JSON.stringify({
+      type: 'verification_result',
+      versionId: result.newVersionId,
+      result: result.verification,
+    });
+    for (const internal of this.sessions.values()) {
+      if (internal.wss && internal.wss.clients) {
+        internal.wss.clients.forEach((client: any) => {
+          if (client.readyState === 1) {
+            client.send(message);
+          }
+        });
+      }
     }
   }
 

@@ -3,6 +3,7 @@ import { PreviewFrameHandle } from './PreviewFrame';
 import { AnnotationItem } from './AnnotationItem';
 import { SubmitButton } from './SubmitButton';
 import { useAnnotations } from '../hooks/useAnnotations';
+import { useAnnotationSelection } from '../hooks/useAnnotationSelection';
 import { useScrollToElement } from '../hooks/useScrollToElement';
 
 export interface AnnotationSidebarProps {
@@ -27,7 +28,18 @@ export function AnnotationSidebar({ versionId, sealed, previewRef }: AnnotationS
     updateAnnotation,
     deleteAnnotation,
     submitAnnotations,
+    batchDelete,
+    batchSubmit,
   } = useAnnotations();
+
+  const {
+    selectedIds,
+    isSelected,
+    toggle,
+    selectAll,
+    clearSelection,
+    selectedCount,
+  } = useAnnotationSelection();
 
   const { scrollToElement } = useScrollToElement(previewRef);
 
@@ -60,11 +72,46 @@ export function AnnotationSidebar({ versionId, sealed, previewRef }: AnnotationS
     }
   };
 
+  const handleBatchDelete = async () => {
+    if (selectedCount === 0) return;
+    if (window.confirm(`Delete ${selectedCount} selected annotation(s)?`)) {
+      await batchDelete(Array.from(selectedIds));
+      clearSelection();
+    }
+  };
+
+  const handleBatchSubmit = async () => {
+    if (versionId && selectedCount > 0) {
+      await batchSubmit(versionId, Array.from(selectedIds));
+      clearSelection();
+    }
+  };
+
+  const handleSelectAll = () => {
+    selectAll(annotations.map((a) => a.id));
+  };
+
   return (
     <div className="annotation-sidebar">
       {/* Header */}
       <div className="annotation-sidebar__header">
         <h3 className="annotation-sidebar__title">Annotations</h3>
+        {annotations.length > 0 && !sealed && (
+          <label className="annotation-sidebar__select-all">
+            <input
+              type="checkbox"
+              checked={selectedCount === annotations.length && annotations.length > 0}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  handleSelectAll();
+                } else {
+                  clearSelection();
+                }
+              }}
+            />
+            Select All
+          </label>
+        )}
         {versionId && (
           <span className="annotation-sidebar__version" title={versionId}>
             {versionId.slice(0, 8)}
@@ -101,6 +148,8 @@ export function AnnotationSidebar({ versionId, sealed, previewRef }: AnnotationS
             annotation={annotation}
             index={idx + 1}
             sealed={sealed}
+            isSelected={isSelected(annotation.id)}
+            onToggle={toggle}
             onClick={handleItemClick}
             onUpdate={handleUpdate}
             onDelete={handleDelete}
@@ -108,7 +157,7 @@ export function AnnotationSidebar({ versionId, sealed, previewRef }: AnnotationS
         ))}
       </div>
 
-      {/* Footer: count + submit */}
+      {/* Footer: count + submit + batch actions */}
       <div className="annotation-sidebar__footer">
         <div className="annotation-sidebar__meta">
           <span className="annotation-sidebar__count">
@@ -118,6 +167,22 @@ export function AnnotationSidebar({ versionId, sealed, previewRef }: AnnotationS
             {sealed ? 'Sealed' : 'Unsealed'}
           </span>
         </div>
+        {selectedCount > 0 && !sealed && (
+          <div className="annotation-sidebar__batch-actions">
+            <button
+              className="annotation-sidebar__batch-btn annotation-sidebar__batch-btn--delete"
+              onClick={handleBatchDelete}
+            >
+              Delete Selected ({selectedCount})
+            </button>
+            <button
+              className="annotation-sidebar__batch-btn annotation-sidebar__batch-btn--submit"
+              onClick={handleBatchSubmit}
+            >
+              Submit Selected ({selectedCount})
+            </button>
+          </div>
+        )}
         {versionId && (
           <SubmitButton sealed={sealed} onSubmit={handleSubmit} />
         )}

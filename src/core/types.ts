@@ -149,6 +149,7 @@ export interface PatchResult {
   diff: VersionDiff;
   appliedPatches: number;
   failedPatches: PatchFailure[];
+  verification?: VerificationResult;
 }
 
 /** Result of previewing patches without applying */
@@ -243,4 +244,51 @@ export interface HtmlError {
   location?: { line: number; column: number; context: string };
   filePath: string;
   versionId?: string;
+}
+
+// ==================== Verification ====================
+
+/** Result of auto-verification after patch application */
+export interface VerificationResult {
+  passed: boolean;
+  domComparison: DomComparisonResult;
+  visualComparison: VisualComparisonResult | null;
+  expectedChanges: DomChange[];
+  unexpectedChanges: DomChange[];
+  summary: string;
+}
+
+/** DOM comparison result */
+export interface DomComparisonResult {
+  totalChanges: number;
+  additions: number;
+  deletions: number;
+  modifications: number;
+  changes: DomChange[];
+}
+
+/** Visual (screenshot) comparison result */
+export interface VisualComparisonResult {
+  diffPercentage: number;
+  diffImagePath: string | null;
+  changedRegions: BoundingBox[];
+  beforeScreenshot: string;
+  afterScreenshot: string;
+}
+
+/** A single DOM change detected during verification */
+export interface DomChange {
+  type: 'added' | 'removed' | 'modified' | 'moved';
+  selector: string;
+  description: string;
+  severity: 'info' | 'warning' | 'error';
+  expected: boolean;
+}
+
+/** Bounding box for visual change regions */
+export interface BoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }

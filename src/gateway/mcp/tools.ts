@@ -9,6 +9,7 @@ import { SnapshotService } from '../../core/snapshot.service.js';
 import { VersionService } from '../../core/version.service.js';
 import { HtmlEditorError } from '../../core/errors.js';
 import type { Patch, PatchAction } from '../../core/types.js';
+import type { McpNotification, NotificationSender } from './notifications.js';
 
 /** MCP content item */
 export interface McpContent {
@@ -82,6 +83,7 @@ export interface Services {
   patchService: PatchService;
   snapshotService: SnapshotService;
   versionService: VersionService;
+  notificationSender?: NotificationSender;
 }
 
 /**
@@ -235,11 +237,35 @@ async function handleApplyPatch(
 
   try {
     const result = await services.patchService.apply(versionId, patches);
+
+    // Push verification alert notification when verification fails
+    if (result.verification && !result.verification.passed && services.notificationSender) {
+      const notification: McpNotification = {
+        method: 'notifications/verification_alert',
+        params: {
+          versionId: result.newVersionId,
+          passed: false,
+          summary: result.verification.summary,
+          unexpectedChanges: result.verification.unexpectedChanges,
+          visualDiff: result.verification.visualComparison ? {
+            diffPercentage: result.verification.visualComparison.diffPercentage,
+            diffImagePath: result.verification.visualComparison.diffImagePath,
+          } : null,
+        },
+      };
+      services.notificationSender(notification);
+    }
+
     return success({
       new_version_id: result.newVersionId,
       diff: result.diff.raw || JSON.stringify(result.diff),
       applied_count: result.appliedPatches,
       failed_patches: result.failedPatches,
+      verification: result.verification ? {
+        passed: result.verification.passed,
+        summary: result.verification.summary,
+        unexpected_changes: result.verification.unexpectedChanges.length,
+      } : undefined,
     });
   } catch (err) {
     return wrapError(err, services);

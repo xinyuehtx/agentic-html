@@ -89,7 +89,7 @@ describe('AnnotationService', () => {
       const annotation = await annotationService.create('working', SAMPLE_INK_ANNOTATION);
 
       expect(annotation.hit_elements).toHaveLength(1);
-      expect(annotation.hit_elements[0]).toEqual({
+      expect(annotation.hit_elements![0]).toEqual({
         selector: 'div.hero > h1',
         tag: 'H1',
         outerHtmlSummary: '<h1>Hello World</h1>',

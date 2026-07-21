@@ -8,6 +8,8 @@ import { HtmlErrorBanner, HtmlError } from './components/HtmlErrorBanner';
 import { usePreviewSession } from './hooks/usePreviewSession';
 import { useAppState, AppStateProvider } from './hooks/useAppState';
 import { useVersionGraph } from './hooks/useVersionGraph';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { ShortcutHints } from './components/ShortcutHints';
 import { isDemoMode, isDemoErrors, DEMO_HTML_ERRORS } from './demoData';
 
 /**
@@ -19,6 +21,7 @@ function AppInner() {
   const {
     mode,
     phase,
+    setMode,
     startPreviewing,
     startSubmitting,
     finishSubmitting,
@@ -78,6 +81,15 @@ function AppInner() {
     }
   }, [phase, sessionId, versionId, startSubmitting, finishSubmitting]);
 
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    appState: { mode, phase, sealed: false },
+    onModeChange: setMode,
+    onSubmit: handleSubmit,
+    onDelete: () => {},  // Phase 2
+    onSelectAll: () => {}, // Phase 2
+  });
+
   // Handle error feedback to agent
   const handleErrorFeedback = useCallback(async (errors: HtmlError[]) => {
     try {
@@ -128,6 +140,9 @@ function AppInner() {
         {/* Version Graph Panel */}
         <VersionGraph sessionId={sessionId} versionGraph={versionGraph} />
       </main>
+
+      {/* Shortcut Hints */}
+      <ShortcutHints />
 
       {/* Version Diff Modal */}
       {versionGraph.diff && (

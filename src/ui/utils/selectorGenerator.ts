@@ -83,7 +83,7 @@ function buildNthChildPath(element: Element): string {
       break;
     }
 
-    const parent = current.parentElement;
+    const parent: Element | null = current.parentElement;
     if (!parent) {
       parts.unshift(tag);
       break;

@@ -9,6 +9,10 @@ export interface AnnotationItemProps {
   index: number;
   /** Whether the version is sealed (read-only) */
   sealed: boolean;
+  /** Whether this item is selected in batch mode */
+  isSelected?: boolean;
+  /** Toggle selection handler */
+  onToggle?: (id: string) => void;
   /** Click handler to scroll/highlight in iframe */
   onClick: (selector: string) => void;
   /** Update comment handler */
@@ -25,6 +29,8 @@ export function AnnotationItem({
   annotation,
   index,
   sealed,
+  isSelected,
+  onToggle,
   onClick,
   onUpdate,
   onDelete,
@@ -47,8 +53,20 @@ export function AnnotationItem({
   };
 
   return (
-    <div className="annotation-item" onClick={handleClick}>
+    <div className={`annotation-item${isSelected ? ' annotation-item--selected' : ''}`} onClick={handleClick}>
       <div className="annotation-item__header">
+        {onToggle && (
+          <input
+            type="checkbox"
+            className="annotation-item__checkbox"
+            checked={!!isSelected}
+            onChange={(e) => {
+              e.stopPropagation();
+              onToggle(annotation.id);
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        )}
         <span className="annotation-item__index">#{index}</span>
         <span className="annotation-item__selector" title={annotation.anchor_element.selector}>
           {selectorDisplay}
