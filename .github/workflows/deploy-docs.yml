@@ -42,6 +42,11 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
+        with:
+          # Auto-enable GitHub Pages (with the "GitHub Actions" source) if the
+          # repo token is permitted to; otherwise enable it once in
+          # Settings → Pages → Source → GitHub Actions.
+          enablement: true
 
       - name: Build docs site
         run: npm run docs:build
