@@ -91,7 +91,16 @@ async function captureScreenshots() {
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
   const page = await context.newPage();
 
-  const baseURL = 'http://localhost:5173';
+  // Showcase the dark theme (the app's default) in documentation screenshots.
+  await page.addInitScript(() => {
+    try {
+      localStorage.setItem('ah-theme', 'dark');
+    } catch {
+      /* ignore */
+    }
+  });
+
+  const baseURL = 'http://localhost:5273';
 
   try {
     // Screenshot 1: Preview page overview (demo mode with content)

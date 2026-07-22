@@ -278,7 +278,8 @@ export class PreviewService {
 <body>
   <iframe id="preview-frame" src="/api/snapshot/${versionId}" style="width:100%;height:100vh;border:none;"></iframe>
   <script>
-    const ws = new WebSocket('ws://' + location.host);
+    const wsProto = location.protocol === 'https:' ? 'wss' : 'ws';
+    const ws = new WebSocket(wsProto + '://' + location.host);
     ws.onmessage = (e) => {
       const data = JSON.parse(e.data);
       if (data.type === 'reload') {

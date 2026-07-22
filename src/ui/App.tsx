@@ -1,14 +1,21 @@
-import { useRef, useEffect, useCallback, useState } from 'react';
+import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { PreviewFrame, PreviewFrameHandle } from './components/PreviewFrame';
 import { Overlay } from './components/Overlay';
 import { Toolbar } from './components/Toolbar';
+import { AnnotationSidebar } from './components/AnnotationSidebar';
 import { VersionGraph } from './components/VersionGraph';
 import { VersionDiffModal } from './components/VersionDiffModal';
 import { HtmlErrorBanner, HtmlError } from './components/HtmlErrorBanner';
+import { AddToChatComposer } from './components/AddToChatComposer';
+import { ElementHighlight } from './components/ElementHighlight';
+import type { AnchorData } from './components/AnchorMarker';
 import { usePreviewSession } from './hooks/usePreviewSession';
 import { useAppState, AppStateProvider } from './hooks/useAppState';
 import { useVersionGraph } from './hooks/useVersionGraph';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useInkAnnotation, type InkAnnotation } from './hooks/useInkAnnotation';
+import { useElementCapture } from './hooks/useElementCapture';
+import { AnnotationStoreProvider, useAnnotationStore } from './hooks/useAnnotationStore';
 import { ShortcutHints } from './components/ShortcutHints';
 import { isDemoMode, isDemoErrors, DEMO_HTML_ERRORS } from './demoData';
 
@@ -17,6 +24,7 @@ import { isDemoMode, isDemoErrors, DEMO_HTML_ERRORS } from './demoData';
  */
 function AppInner() {
   const previewRef = useRef<PreviewFrameHandle>(null);
+  const iframeElRef = useRef<HTMLIFrameElement>(null);
   const { htmlContent, loading, error, connected, versionId, sessionId } = usePreviewSession();
   const {
     mode,
@@ -27,124 +35,195 @@ function AppInner() {
     finishSubmitting,
     setHasHtmlErrors,
     setCurrentVersion,
-    versionGraphOpen,
   } = useAppState();
+
+  const {
+    annotations,
+    sealed,
+    add: addAnnotation,
+    remove: removeAnnotation,
+    removeMany,
+    hydrate,
+    sendToAgent,
+    selection,
+  } = useAnnotationStore();
 
   const versionGraph = useVersionGraph();
   const [htmlErrors, setHtmlErrors] = useState<HtmlError[]>([]);
 
-  // Transition idle → previewing when content loads
+  // Ink stroke pipeline feeds the shared annotation store.
+  const handleInkComplete = useCallback(
+    (a: InkAnnotation) => {
+      addAnnotation({
+        source: 'ink',
+        anchor_element: a.anchor_element,
+        screenshot: a.screenshot,
+        hit_elements: a.hit_elements.map((h) => ({
+          selector: h.selector,
+          tag: '',
+          outerHtmlSummary: '',
+          boundingRect: { x: 0, y: 0, width: 0, height: 0 },
+        })),
+        anchor: a.anchor,
+      });
+    },
+    [addAnnotation],
+  );
+  const ink = useInkAnnotation(iframeElRef, handleInkComplete);
+
+  // Element capture ("add element to chat") — active only in select mode.
+  const capture = useElementCapture(iframeElRef, mode === 'select');
+  const handleAddElement = useCallback(
+    (note: string) => {
+      const c = capture.pending;
+      if (!c) return;
+      addAnnotation({
+        source: 'element',
+        anchor_element: { selector: c.selector },
+        comment: note,
+        screenshot: c.screenshot,
+        hit_elements: [
+          {
+            selector: c.selector,
+            tag: c.tag,
+            outerHtmlSummary: c.outerHtmlSummary,
+            boundingRect: c.rect,
+          },
+        ],
+        anchor: { x: c.anchorX, y: c.anchorY },
+      });
+      capture.clearPending();
+    },
+    [capture, addAnnotation],
+  );
+
+  // Anchor markers derived from stored annotations that carry capture-time coords.
+  const anchors: AnchorData[] = useMemo(
+    () =>
+      annotations
+        .filter((a) => a.anchor)
+        .map((a) => ({
+          id: a.id,
+          x: a.anchor!.x,
+          y: a.anchor!.y,
+          selector: a.anchor_element.selector,
+          screenshot: a.screenshot,
+          hitElementSelectors: a.hit_elements?.map((h) => h.selector),
+          comment: a.comment,
+        })),
+    [annotations],
+  );
+
+  // Transition idle → previewing when content loads.
   useEffect(() => {
-    if (htmlContent && phase === 'idle') {
-      startPreviewing();
-    }
+    if (htmlContent && phase === 'idle') startPreviewing();
   }, [htmlContent, phase, startPreviewing]);
 
-  // Update current version in state machine
+  // Track current version and hydrate the annotation store.
   useEffect(() => {
     if (versionId) {
       setCurrentVersion(versionId, false);
+      hydrate(versionId);
     }
-  }, [versionId, setCurrentVersion]);
+  }, [versionId, setCurrentVersion, hydrate]);
 
-  // Detect HTML errors (simplified: check for common parse error indicators)
+  // Derive HTML errors (demo drives them; real errors would come from the backend).
   useEffect(() => {
     if (isDemoMode() && isDemoErrors()) {
       setHtmlErrors(DEMO_HTML_ERRORS);
-      setHasHtmlErrors(true);
-      return;
-    }
-    if (!htmlContent) {
+    } else if (!htmlContent) {
       setHtmlErrors([]);
-      setHasHtmlErrors(false);
-      return;
     }
-    // In real implementation, this would come from PreviewService has_errors field
-    // For now, we maintain the errors array as empty unless backend signals errors
-    setHasHtmlErrors(htmlErrors.length > 0);
-  }, [htmlContent, htmlErrors, setHasHtmlErrors]);
+  }, [htmlContent]);
 
-  // Handle submit annotations
+  useEffect(() => {
+    setHasHtmlErrors(htmlErrors.length > 0);
+  }, [htmlErrors, setHasHtmlErrors]);
+
+  // Submit / "send to agent".
   const handleSubmit = useCallback(async () => {
     if (phase === 'submitting') return;
     startSubmitting();
     try {
-      await fetch('/api/annotations/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, versionId }),
-      });
-    } catch {
-      // Error handling - could show toast
+      await sendToAgent();
     } finally {
       finishSubmitting();
     }
-  }, [phase, sessionId, versionId, startSubmitting, finishSubmitting]);
+  }, [phase, startSubmitting, finishSubmitting, sendToAgent]);
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts.
   useKeyboardShortcuts({
-    appState: { mode, phase, sealed: false },
+    appState: { mode, phase, sealed },
     onModeChange: setMode,
     onSubmit: handleSubmit,
-    onDelete: () => {},  // Phase 2
-    onSelectAll: () => {}, // Phase 2
+    onDelete: () => {
+      if (selection.selectedCount > 0) {
+        removeMany(Array.from(selection.selectedIds));
+        selection.clearSelection();
+      } else if (annotations.length > 0) {
+        removeAnnotation(annotations[annotations.length - 1].id);
+      }
+    },
+    onSelectAll: () => selection.selectAll(annotations.map((a) => a.id)),
   });
 
-  // Handle error feedback to agent
-  const handleErrorFeedback = useCallback(async (errors: HtmlError[]) => {
-    try {
-      await fetch('/api/errors/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, versionId, errors }),
-      });
-    } catch {
-      // Silently fail
-    }
-  }, [sessionId, versionId]);
-
-  // Determine overlay mode based on app state
-  const overlayMode = (mode === 'ink' || mode === 'select') ? 'annotate' : 'browse';
+  // Error feedback to agent.
+  const handleErrorFeedback = useCallback(
+    async (errors: HtmlError[]) => {
+      try {
+        await fetch('/api/errors/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId, versionId, errors }),
+        });
+      } catch {
+        // best-effort
+      }
+    },
+    [sessionId, versionId],
+  );
 
   return (
     <div className="app-layout">
-      {/* Toolbar */}
-      <Toolbar connected={connected} onSubmit={handleSubmit} />
+      <Toolbar connected={connected} onSubmit={handleSubmit} annotationCount={annotations.length} />
 
-      {/* HTML Error Banner */}
       {htmlErrors.length > 0 && (
         <HtmlErrorBanner errors={htmlErrors} onFeedback={handleErrorFeedback} />
       )}
 
-      {/* Main content */}
       <main className="app-content">
-        {/* Preview area: iframe + overlay */}
         <div className="preview-area">
-          {loading && (
-            <div style={{ padding: 16, color: '#64748b' }}>Loading preview...</div>
-          )}
-          {error && (
-            <div style={{ padding: 16, color: '#ef4444' }}>Error: {error}</div>
-          )}
-          <PreviewFrame ref={previewRef} htmlContent={htmlContent} />
-          <Overlay mode={overlayMode} />
+          {loading && <div className="preview-state">Loading preview…</div>}
+          {error && <div className="preview-state preview-state--error">Error: {error}</div>}
+          <PreviewFrame ref={previewRef} elementRef={iframeElRef} htmlContent={htmlContent} />
+          <Overlay
+            mode={mode}
+            inkActive={mode === 'ink'}
+            onStrokeComplete={ink.handleStrokeComplete}
+            anchors={anchors}
+            selectedAnchorId={null}
+            iframeRef={iframeElRef}
+          >
+            {mode === 'select' && <ElementHighlight hovered={capture.hovered} />}
+            {capture.pending && (
+              <AddToChatComposer
+                capture={capture.pending}
+                onConfirm={handleAddElement}
+                onCancel={capture.clearPending}
+              />
+            )}
+          </Overlay>
         </div>
 
-        {/* Sidebar */}
         <aside className="app-sidebar">
-          <div style={{ padding: 16, color: '#64748b', fontSize: 13 }}>
-            {versionId ? `Version: ${versionId}` : 'No version loaded'}
-          </div>
+          <AnnotationSidebar previewRef={previewRef} />
         </aside>
 
-        {/* Version Graph Panel */}
         <VersionGraph sessionId={sessionId} versionGraph={versionGraph} />
       </main>
 
-      {/* Shortcut Hints */}
       <ShortcutHints />
 
-      {/* Version Diff Modal */}
       {versionGraph.diff && (
         <VersionDiffModal
           diff={versionGraph.diff}
@@ -157,12 +236,14 @@ function AppInner() {
 }
 
 /**
- * App - Root component wrapped with AppStateProvider.
+ * App - Root component wrapped with providers.
  */
 export function App() {
   return (
     <AppStateProvider>
-      <AppInner />
+      <AnnotationStoreProvider>
+        <AppInner />
+      </AnnotationStoreProvider>
     </AppStateProvider>
   );
 }

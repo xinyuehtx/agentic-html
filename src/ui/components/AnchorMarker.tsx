@@ -85,7 +85,7 @@ export function AnchorMarker({ anchor, selected, onClick, iframeRef }: AnchorMar
 
   return (
     <div
-      className="anchor-marker"
+      className={`anchor-marker ${selected ? 'anchor-marker--selected' : ''}`}
       style={{
         position: 'absolute',
         left: anchor.x - 8,
@@ -98,19 +98,7 @@ export function AnchorMarker({ anchor, selected, onClick, iframeRef }: AnchorMar
       onClick={handleClick}
     >
       {/* Marker dot */}
-      <div
-        style={{
-          width: 16,
-          height: 16,
-          borderRadius: '50%',
-          background: selected ? '#e11d48' : '#f43f5e',
-          border: '2px solid #fff',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-          cursor: 'pointer',
-          transition: 'transform 0.15s ease',
-          transform: hovered ? 'scale(1.3)' : 'scale(1)',
-        }}
-      />
+      <div className={`anchor-marker__dot ${hovered ? 'anchor-marker__dot--hovered' : ''}`} />
 
       {/* Screenshot tooltip on hover */}
       {hovered && anchor.screenshot && (
@@ -122,11 +110,6 @@ export function AnchorMarker({ anchor, selected, onClick, iframeRef }: AnchorMar
             bottom: 24,
             left: '50%',
             transform: 'translateX(-50%)',
-            background: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: 8,
-            padding: 4,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
             zIndex: 1000,
             maxWidth: 320,
             maxHeight: 240,
@@ -145,19 +128,7 @@ export function AnchorMarker({ anchor, selected, onClick, iframeRef }: AnchorMar
             }}
           />
           {anchor.comment && (
-            <div
-              style={{
-                marginTop: 4,
-                padding: '2px 4px',
-                fontSize: 11,
-                color: '#475569',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              {anchor.comment}
-            </div>
+            <div className="anchor-marker__tooltip-comment">{anchor.comment}</div>
           )}
         </div>
       )}

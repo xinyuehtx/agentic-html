@@ -1,0 +1,190 @@
+/**
+ * theme.css — design token system for Agentic HTML.
+ *
+ * Adaptive: dark is the default; `:root[data-theme="light"]` overrides.
+ * All other stylesheets consume these tokens — no hardcoded hex outside this file.
+ * Palette validated with the dataviz palette validator (CVD + contrast) for both
+ * surfaces; every color-coded state also carries a text/icon label (secondary encoding).
+ */
+
+:root {
+  color-scheme: dark;
+
+  /* --- Surfaces (deep tech canvas) --- */
+  --bg: #0b0f1a;
+  --bg-elevated: #0f1524;
+  --surface: #141b2e;
+  --surface-2: #1a2238;
+  --surface-3: #212c47;
+
+  /* --- Borders --- */
+  --border: rgba(148, 163, 184, 0.14);
+  --border-strong: rgba(148, 163, 184, 0.26);
+
+  /* --- Text --- */
+  --text: #e8edf7;
+  --text-muted: #94a3b8;
+  --text-faint: #64748b;
+
+  /* --- Accents --- */
+  --accent: #22d3ee;          /* cyan */
+  --accent-strong: #06b6d4;
+  --accent-2: #8b5cf6;        /* violet */
+  --accent-2-strong: #7c3aed;
+  --accent-contrast: #04121a; /* text on top of accent fills */
+  --accent-grad: linear-gradient(135deg, #22d3ee 0%, #8b5cf6 100%);
+  --accent-soft: rgba(34, 211, 238, 0.14);
+  --accent-2-soft: rgba(139, 92, 246, 0.16);
+
+  /* --- State colors --- */
+  --success: #34d399;
+  --success-soft: rgba(52, 211, 153, 0.15);
+  --warning: #fbbf24;
+  --warning-soft: rgba(251, 191, 36, 0.15);
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.14);
+
+  /* --- Effects --- */
+  --glow: 0 0 0 1px rgba(34, 211, 238, 0.35), 0 0 18px rgba(34, 211, 238, 0.28);
+  --glow-2: 0 0 20px rgba(139, 92, 246, 0.3);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.6);
+  --glass: rgba(15, 21, 36, 0.72);
+  --glass-blur: 14px;
+
+  /* --- Radii --- */
+  --r-sm: 6px;
+  --r-md: 9px;
+  --r-lg: 14px;
+  --r-pill: 999px;
+
+  /* --- Typography --- */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular,
+    Menlo, Consolas, monospace;
+
+  /* --- Motion --- */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur: 0.16s;
+
+  /* --- Z-index layers --- */
+  --z-toolbar: 10000;
+  --z-overlay-draw: 9000;
+  --z-overlay-interact: 8000;
+  --z-iframe: 1;
+}
+
+/* ===== Light theme ===== */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #eef1f6;
+  --bg-elevated: #f7f8fb;
+  --surface: #ffffff;
+  --surface-2: #f4f6fa;
+  --surface-3: #eaeef4;
+
+  --border: rgba(15, 23, 42, 0.1);
+  --border-strong: rgba(15, 23, 42, 0.18);
+
+  --text: #0f172a;
+  --text-muted: #475569;
+  --text-faint: #94a3b8;
+
+  --accent: #0891b2;
+  --accent-strong: #0e7490;
+  --accent-2: #7c3aed;
+  --accent-2-strong: #6d28d9;
+  --accent-contrast: #ffffff;
+  --accent-grad: linear-gradient(135deg, #0891b2 0%, #7c3aed 100%);
+  --accent-soft: rgba(8, 145, 178, 0.1);
+  --accent-2-soft: rgba(124, 58, 237, 0.1);
+
+  --success: #059669;
+  --success-soft: rgba(5, 150, 105, 0.12);
+  --warning: #d97706;
+  --warning-soft: rgba(217, 119, 6, 0.12);
+  --danger: #dc2626;
+  --danger-soft: rgba(220, 38, 38, 0.1);
+
+  --glow: 0 0 0 1px rgba(8, 145, 178, 0.3), 0 0 14px rgba(8, 145, 178, 0.18);
+  --glow-2: 0 0 16px rgba(124, 58, 237, 0.18);
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.12);
+  --shadow-lg: 0 20px 60px rgba(15, 23, 42, 0.18);
+  --glass: rgba(255, 255, 255, 0.75);
+}
+
+/* ===== Base reset ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Ambient tech backdrop: subtle grid + radial glow (dark only) */
+body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(900px 500px at 78% -8%, rgba(34, 211, 238, 0.08), transparent 60%),
+    radial-gradient(800px 480px at -6% 106%, rgba(139, 92, 246, 0.1), transparent 55%);
+}
+
+:root[data-theme='light'] body {
+  background-image:
+    radial-gradient(900px 500px at 78% -8%, rgba(8, 145, 178, 0.06), transparent 60%),
+    radial-gradient(800px 480px at -6% 106%, rgba(124, 58, 237, 0.06), transparent 55%);
+}
+
+/* ===== Focus ring ===== */
+:where(button, a, input, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+/* ===== Scrollbars ===== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--r-pill);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--text-faint);
+  background-clip: padding-box;
+}
+
+/* ===== Reduced motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -1,94 +1,44 @@
-import { useEffect, RefObject } from 'react';
+import { RefObject } from 'react';
 import { PreviewFrameHandle } from './PreviewFrame';
 import { AnnotationItem } from './AnnotationItem';
 import { SubmitButton } from './SubmitButton';
-import { useAnnotations } from '../hooks/useAnnotations';
-import { useAnnotationSelection } from '../hooks/useAnnotationSelection';
+import { useAnnotationStore } from '../hooks/useAnnotationStore';
 import { useScrollToElement } from '../hooks/useScrollToElement';
 
 export interface AnnotationSidebarProps {
-  /** Current version ID */
-  versionId: string | null;
-  /** Whether the current version is sealed */
-  sealed: boolean;
   /** Ref to the PreviewFrame for scroll/highlight */
   previewRef: RefObject<PreviewFrameHandle | null>;
 }
 
 /**
  * AnnotationSidebar - right panel showing all annotations for the current version.
- * Provides CRUD operations, scroll-to-element, and submit functionality.
+ * Reads from the shared annotation store; provides CRUD, batch ops, scroll-to-element,
+ * and submit.
  */
-export function AnnotationSidebar({ versionId, sealed, previewRef }: AnnotationSidebarProps) {
+export function AnnotationSidebar({ previewRef }: AnnotationSidebarProps) {
   const {
     annotations,
+    versionId,
+    sealed,
     loading,
     error,
-    fetchAnnotations,
-    updateAnnotation,
-    deleteAnnotation,
-    submitAnnotations,
-    batchDelete,
-    batchSubmit,
-  } = useAnnotations();
+    sendResult,
+    selection,
+    update,
+    remove,
+    removeMany,
+    sendToAgent,
+  } = useAnnotationStore();
 
-  const {
-    selectedIds,
-    isSelected,
-    toggle,
-    selectAll,
-    clearSelection,
-    selectedCount,
-  } = useAnnotationSelection();
-
+  const { selectedIds, isSelected, toggle, selectAll, clearSelection, selectedCount } = selection;
   const { scrollToElement } = useScrollToElement(previewRef);
 
-  // Fetch annotations when versionId changes
-  useEffect(() => {
-    if (versionId) {
-      fetchAnnotations(versionId);
-    }
-  }, [versionId, fetchAnnotations]);
-
-  const handleItemClick = (selector: string) => {
-    scrollToElement(selector);
-  };
-
-  const handleUpdate = (id: string, comment: string) => {
-    updateAnnotation(id, { comment });
-  };
-
-  const handleDelete = (id: string) => {
-    if (window.confirm('Delete this annotation?')) {
-      deleteAnnotation(id);
-    }
-  };
-
-  const handleSubmit = async () => {
-    if (versionId) {
-      await submitAnnotations(versionId);
-      // Refetch to get updated state
-      await fetchAnnotations(versionId);
-    }
-  };
-
-  const handleBatchDelete = async () => {
+  const handleBatchDelete = () => {
     if (selectedCount === 0) return;
     if (window.confirm(`Delete ${selectedCount} selected annotation(s)?`)) {
-      await batchDelete(Array.from(selectedIds));
+      removeMany(Array.from(selectedIds));
       clearSelection();
     }
-  };
-
-  const handleBatchSubmit = async () => {
-    if (versionId && selectedCount > 0) {
-      await batchSubmit(versionId, Array.from(selectedIds));
-      clearSelection();
-    }
-  };
-
-  const handleSelectAll = () => {
-    selectAll(annotations.map((a) => a.id));
   };
 
   return (
@@ -101,43 +51,31 @@ export function AnnotationSidebar({ versionId, sealed, previewRef }: AnnotationS
             <input
               type="checkbox"
               checked={selectedCount === annotations.length && annotations.length > 0}
-              onChange={(e) => {
-                if (e.target.checked) {
-                  handleSelectAll();
-                } else {
-                  clearSelection();
-                }
-              }}
+              onChange={(e) =>
+                e.target.checked ? selectAll(annotations.map((a) => a.id)) : clearSelection()
+              }
             />
-            Select All
+            All
           </label>
         )}
         {versionId && (
           <span className="annotation-sidebar__version" title={versionId}>
-            {versionId.slice(0, 8)}
+            #{versionId.slice(0, 8)}
           </span>
         )}
       </div>
 
-      {/* Error display */}
-      {error && (
-        <div className="annotation-sidebar__error">
-          {error}
-        </div>
-      )}
-
-      {/* Loading state */}
-      {loading && (
-        <div className="annotation-sidebar__loading">Loading annotations...</div>
-      )}
+      {error && <div className="annotation-sidebar__error">{error}</div>}
+      {loading && <div className="annotation-sidebar__loading">Loading annotations…</div>}
 
       {/* Annotation list */}
       <div className="annotation-sidebar__list">
         {!loading && annotations.length === 0 && (
           <div className="annotation-sidebar__empty">
+            <div className="annotation-sidebar__empty-mark" aria-hidden>⊹</div>
             <p>No annotations yet.</p>
             <p className="annotation-sidebar__empty-hint">
-              Use the annotation tool to mark elements on the page.
+              Use <b>Ink</b> to circle a region or <b>Select</b> to add an element to chat.
             </p>
           </div>
         )}
@@ -146,13 +84,16 @@ export function AnnotationSidebar({ versionId, sealed, previewRef }: AnnotationS
           <AnnotationItem
             key={annotation.id}
             annotation={annotation}
+            source={annotation.source}
             index={idx + 1}
             sealed={sealed}
             isSelected={isSelected(annotation.id)}
             onToggle={toggle}
-            onClick={handleItemClick}
-            onUpdate={handleUpdate}
-            onDelete={handleDelete}
+            onClick={scrollToElement}
+            onUpdate={(id, comment) => update(id, comment)}
+            onDelete={(id) => {
+              if (window.confirm('Delete this annotation?')) remove(id);
+            }}
           />
         ))}
       </div>
@@ -163,29 +104,37 @@ export function AnnotationSidebar({ versionId, sealed, previewRef }: AnnotationS
           <span className="annotation-sidebar__count">
             {annotations.length} annotation{annotations.length !== 1 ? 's' : ''}
           </span>
-          <span className={`annotation-sidebar__seal-status ${sealed ? 'annotation-sidebar__seal-status--sealed' : ''}`}>
+          <span
+            className={`annotation-sidebar__seal-status ${
+              sealed ? 'annotation-sidebar__seal-status--sealed' : ''
+            }`}
+          >
             {sealed ? 'Sealed' : 'Unsealed'}
           </span>
         </div>
+
+        {sendResult && (
+          <div
+            className={`annotation-sidebar__send-result annotation-sidebar__send-result--${
+              sendResult.ok ? 'ok' : 'err'
+            }`}
+          >
+            {sendResult.message}
+          </div>
+        )}
+
         {selectedCount > 0 && !sealed && (
           <div className="annotation-sidebar__batch-actions">
             <button
               className="annotation-sidebar__batch-btn annotation-sidebar__batch-btn--delete"
               onClick={handleBatchDelete}
             >
-              Delete Selected ({selectedCount})
-            </button>
-            <button
-              className="annotation-sidebar__batch-btn annotation-sidebar__batch-btn--submit"
-              onClick={handleBatchSubmit}
-            >
-              Submit Selected ({selectedCount})
+              Delete ({selectedCount})
             </button>
           </div>
         )}
-        {versionId && (
-          <SubmitButton sealed={sealed} onSubmit={handleSubmit} />
-        )}
+
+        {versionId && <SubmitButton sealed={sealed} onSubmit={sendToAgent} />}
       </div>
     </div>
   );

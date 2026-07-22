@@ -12,37 +12,16 @@ export function ShortcutHints() {
   const mod = isMac ? '⌘' : 'Ctrl';
 
   return (
-    <div
-      className="shortcut-hints"
-      style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 16,
-        padding: '6px 16px',
-        background: 'rgba(15, 23, 42, 0.75)',
-        backdropFilter: 'blur(4px)',
-        color: 'rgba(255, 255, 255, 0.7)',
-        fontSize: 12,
-        fontFamily: 'system-ui, -apple-system, sans-serif',
-        zIndex: 9999,
-        pointerEvents: 'none',
-        userSelect: 'none',
-      }}
-    >
-      <span>{mod}+Enter Submit</span>
-      <span style={{ opacity: 0.4 }}>|</span>
-      <span>Esc Cancel</span>
-      <span style={{ opacity: 0.4 }}>|</span>
-      <span>1/2/3 Mode</span>
-      <span style={{ opacity: 0.4 }}>|</span>
-      <span>Del Delete</span>
-      <span style={{ opacity: 0.4 }}>|</span>
-      <span>{mod}+A Select All</span>
+    <div className="shortcut-hints">
+      <span><kbd>{mod}+Enter</kbd> Submit</span>
+      <span className="shortcut-hints__sep">|</span>
+      <span><kbd>Esc</kbd> Cancel</span>
+      <span className="shortcut-hints__sep">|</span>
+      <span><kbd>1/2/3</kbd> Mode</span>
+      <span className="shortcut-hints__sep">|</span>
+      <span><kbd>Del</kbd> Delete</span>
+      <span className="shortcut-hints__sep">|</span>
+      <span><kbd>{mod}+A</kbd> Select All</span>
     </div>
   );
 }
