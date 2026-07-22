@@ -1,0 +1,99 @@
+/**
+ * Custom VitePress theme — cyan/violet tech aesthetic matching the Agentic HTML app.
+ * Overrides the default theme's brand tokens and adds hero/backdrop treatments.
+ */
+
+/* ===== Brand tokens ===== */
+:root {
+  --vp-c-brand-1: #0e7490; /* links / accent text (light mode: darker for contrast) */
+  --vp-c-brand-2: #0891b2;
+  --vp-c-brand-3: #06b6d4; /* solid button bg */
+  --vp-c-brand-soft: rgba(34, 211, 238, 0.14);
+  --vp-c-brand-softer: rgba(34, 211, 238, 0.08);
+
+  /* Home hero: cyan → violet gradient wordmark */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #06b6d4 25%, #8b5cf6);
+
+  --vp-home-hero-image-background-image: linear-gradient(
+    -45deg,
+    rgba(34, 211, 238, 0.5),
+    rgba(139, 92, 246, 0.5)
+  );
+  --vp-home-hero-image-filter: blur(52px);
+}
+
+.dark {
+  --vp-c-brand-1: #22d3ee;
+  --vp-c-brand-2: #38dcf0;
+  --vp-c-brand-3: #06b6d4;
+  --vp-c-brand-soft: rgba(34, 211, 238, 0.16);
+  --vp-c-brand-softer: rgba(34, 211, 238, 0.1);
+
+  /* Deep tech canvas */
+  --vp-c-bg: #0b0f1a;
+  --vp-c-bg-alt: #0f1524;
+  --vp-c-bg-elv: #141b2e;
+  --vp-c-bg-soft: #141b2e;
+}
+
+/* ===== Buttons: gradient brand action ===== */
+.VPButton.brand {
+  background: linear-gradient(135deg, #22d3ee, #8b5cf6);
+  border-color: transparent;
+  color: #04121a;
+  font-weight: 700;
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+.VPButton.brand:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+/* ===== Ambient tech backdrop ===== */
+.dark body {
+  background-image:
+    radial-gradient(900px 480px at 82% -6%, rgba(34, 211, 238, 0.08), transparent 60%),
+    radial-gradient(760px 440px at -4% 104%, rgba(139, 92, 246, 0.1), transparent 55%);
+  background-attachment: fixed;
+}
+
+/* ===== Home hero polish ===== */
+.VPHero .name {
+  letter-spacing: -0.02em;
+}
+.VPHero .tagline {
+  color: var(--vp-c-text-2);
+}
+
+/* ===== Feature cards: subtle glow on hover ===== */
+.VPFeature {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.VPFeature:hover {
+  border-color: var(--vp-c-brand-1);
+  box-shadow: 0 0 0 1px var(--vp-c-brand-soft), 0 8px 30px rgba(34, 211, 238, 0.1);
+  transform: translateY(-2px);
+}
+
+/* ===== Screenshot frames in content ===== */
+.vp-doc img {
+  border-radius: 12px;
+}
+.vp-doc .shot img {
+  border: 1px solid var(--vp-c-divider);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+}
+
+/* ===== Nav gradient underline on active ===== */
+.VPNavBarMenuLink.active {
+  color: var(--vp-c-brand-1);
+}
+
+/* ===== Reduced motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  .VPButton.brand,
+  .VPFeature {
+    transition: none;
+  }
+}
