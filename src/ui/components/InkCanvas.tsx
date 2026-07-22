@@ -250,12 +250,12 @@ export function InkCanvas({ active, onStrokeComplete }: InkCanvasProps) {
     >
       <path
         ref={pathRef}
+        className="ink-canvas__path"
         fill="none"
-        stroke="#f43f5e"
         strokeWidth="3"
         strokeLinecap="round"
         strokeLinejoin="round"
-        opacity="0.8"
+        opacity="0.9"
       />
     </svg>
   );

@@ -2,14 +2,14 @@ import { ReactNode } from 'react';
 import { InkCanvas, type InkStrokeResult } from './InkCanvas';
 import { AnchorMarker, type AnchorData } from './AnchorMarker';
 
-/** Interaction mode for the overlay */
-export type OverlayMode = 'browse' | 'annotate';
+/** Interaction mode for the overlay (mirrors the app mode). */
+export type OverlayMode = 'browse' | 'ink' | 'select';
 
 /** Props for Overlay component */
 export interface OverlayProps {
-  /** Current mode: browse (pointer-events: none) or annotate (intercepts events) */
+  /** Current mode. Only `ink` makes the overlay capture pointer events. */
   mode: OverlayMode;
-  /** Child elements to render inside the overlay (annotation markers, etc.) */
+  /** Child elements rendered above the overlay (highlight chip, composer, etc.) */
   children?: ReactNode;
   /** Optional className for additional styling */
   className?: string;
@@ -29,9 +29,12 @@ export interface OverlayProps {
 
 /**
  * Overlay - transparent layer positioned above the preview iframe.
- * In browse mode: pointer-events are disabled, iframe is interactive.
- * In annotate mode: intercepts mouse/touch events for annotation drawing.
- * Renders InkCanvas for drawing and AnchorMarkers for placed annotations.
+ *
+ * Pointer events by mode:
+ * - `ink`: overlay captures events so InkCanvas can draw.
+ * - `select` / `browse`: overlay is click-through so hover/click reach the iframe
+ *   (element-capture attaches listeners inside the iframe). Interactive children
+ *   (anchor markers, the add-to-chat composer) re-enable pointer events themselves.
  */
 export function Overlay({
   mode,
@@ -44,18 +47,17 @@ export function Overlay({
   onAnchorClick,
   iframeRef,
 }: OverlayProps) {
-  const modeClass = mode === 'annotate'
-    ? 'overlay-container--annotate'
-    : 'overlay-container--browse';
+  const modeClass = mode === 'ink'
+    ? 'overlay-container--ink'
+    : mode === 'select'
+      ? 'overlay-container--select'
+      : 'overlay-container--browse';
 
   return (
     <div className={`overlay-container ${modeClass} ${className ?? ''}`} data-overlay="true">
-      {/* Ink drawing canvas */}
-      {mode === 'annotate' && onStrokeComplete && (
-        <InkCanvas
-          active={inkActive}
-          onStrokeComplete={onStrokeComplete}
-        />
+      {/* Ink drawing canvas (only in ink mode) */}
+      {mode === 'ink' && onStrokeComplete && (
+        <InkCanvas active={inkActive} onStrokeComplete={onStrokeComplete} />
       )}
 
       {/* Anchor markers (always visible) */}

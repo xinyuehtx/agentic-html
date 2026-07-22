@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { UIAnnotation } from '../hooks/useAnnotations';
+import type { AnnotationSource } from '../hooks/useAnnotationStore';
 import { AnnotationEditor } from './AnnotationEditor';
+import { toDataUrl } from '../utils/toDataUrl';
 
 export interface AnnotationItemProps {
   /** The annotation data */
   annotation: UIAnnotation;
+  /** How the annotation was created (drives the badge) */
+  source?: AnnotationSource;
   /** 1-based index for display */
   index: number;
   /** Whether the version is sealed (read-only) */
@@ -21,12 +25,19 @@ export interface AnnotationItemProps {
   onDelete: (id: string) => void;
 }
 
+/** Badge glyph + label per annotation source. */
+const SOURCE_META: Record<AnnotationSource, { icon: string; label: string }> = {
+  ink: { icon: '✎', label: 'Ink' },
+  element: { icon: '⊹', label: 'Element' },
+};
+
 /**
  * AnnotationItem - single annotation card in the sidebar list.
- * Shows selector, comment preview, screenshot thumbnail, and action buttons.
+ * Shows source badge, selector, comment preview, screenshot thumbnail, and actions.
  */
 export function AnnotationItem({
   annotation,
+  source,
   index,
   sealed,
   isSelected,
@@ -42,6 +53,8 @@ export function AnnotationItem({
   const commentPreview = annotation.comment.length > 80 && !expanded
     ? annotation.comment.slice(0, 80) + '...'
     : annotation.comment;
+  const badge = source ? SOURCE_META[source] : null;
+  const screenshotSrc = toDataUrl(annotation.screenshot);
 
   const handleClick = () => {
     onClick(annotation.anchor_element.selector);
@@ -68,6 +81,11 @@ export function AnnotationItem({
           />
         )}
         <span className="annotation-item__index">#{index}</span>
+        {badge && (
+          <span className={`annotation-item__badge annotation-item__badge--${source}`} title={badge.label}>
+            <span aria-hidden>{badge.icon}</span> {badge.label}
+          </span>
+        )}
         <span className="annotation-item__selector" title={annotation.anchor_element.selector}>
           {selectorDisplay}
         </span>
@@ -77,10 +95,10 @@ export function AnnotationItem({
       </div>
 
       {/* Screenshot thumbnail */}
-      {annotation.screenshot && (
+      {screenshotSrc && (
         <div className="annotation-item__screenshot">
           <img
-            src={`data:image/png;base64,${annotation.screenshot}`}
+            src={screenshotSrc}
             alt="Annotation screenshot"
             className="annotation-item__screenshot-img"
           />

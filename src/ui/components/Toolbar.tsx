@@ -1,14 +1,17 @@
 import { useAppState, AppMode } from '../hooks/useAppState';
+import { useTheme } from '../hooks/useTheme';
 
 interface ToolbarProps {
   connected: boolean;
   onSubmit: () => void;
+  /** Number of pending annotations (drives the submit badge). */
+  annotationCount?: number;
 }
 
 /**
- * Toolbar - top toolbar with mode switching, submit, version info, and controls.
+ * Toolbar - top toolbar with mode switching, submit, version info, theme toggle.
  */
-export function Toolbar({ connected, onSubmit }: ToolbarProps) {
+export function Toolbar({ connected, onSubmit, annotationCount = 0 }: ToolbarProps) {
   const {
     mode,
     phase,
@@ -19,28 +22,31 @@ export function Toolbar({ connected, onSubmit }: ToolbarProps) {
     versionGraphOpen,
     toggleVersionGraph,
   } = useAppState();
+  const { theme, toggle: toggleTheme } = useTheme();
 
   const isSubmitting = phase === 'submitting';
   const canAnnotate = phase === 'previewing' || phase === 'annotating';
 
-  const modes: { key: AppMode; label: string }[] = [
-    { key: 'browse', label: 'Browse' },
-    { key: 'ink', label: 'Ink' },
-    { key: 'select', label: 'Select' },
+  const modes: { key: AppMode; label: string; hint: string }[] = [
+    { key: 'browse', label: 'Browse', hint: 'Interact with the page (1)' },
+    { key: 'ink', label: 'Ink', hint: 'Circle a region (2)' },
+    { key: 'select', label: 'Select', hint: 'Add an element to chat (3)' },
   ];
 
   return (
     <header className="toolbar">
+      <span className="toolbar__logo" aria-hidden />
       <span className="toolbar__brand">Agentic HTML</span>
 
       {/* Mode switcher */}
-      <div className="toolbar__mode-group">
-        {modes.map(({ key, label }) => (
+      <div className="toolbar__mode-group" role="group" aria-label="Annotation mode">
+        {modes.map(({ key, label, hint }) => (
           <button
             key={key}
             className={`toolbar__mode-btn ${mode === key ? 'toolbar__mode-btn--active' : ''}`}
             onClick={() => setMode(key)}
             disabled={isSubmitting || (!canAnnotate && key !== 'browse')}
+            title={hint}
           >
             {label}
           </button>
@@ -53,7 +59,10 @@ export function Toolbar({ connected, onSubmit }: ToolbarProps) {
         onClick={onSubmit}
         disabled={isSubmitting || phase === 'idle'}
       >
-        {isSubmitting ? 'Submitting...' : 'Submit Annotations'}
+        {isSubmitting ? 'Submitting…' : 'Submit Annotations'}
+        {annotationCount > 0 && !isSubmitting && (
+          <span className="toolbar__btn-badge">{annotationCount}</span>
+        )}
       </button>
 
       {/* HTML error indicator */}
@@ -68,10 +77,10 @@ export function Toolbar({ connected, onSubmit }: ToolbarProps) {
       {/* Version info */}
       {currentVersionId && (
         <div className="toolbar__version-info">
-          <span className="toolbar__version-badge">
-            v{currentVersionId.slice(0, 8)}
-          </span>
-          {sealed && <span className="toolbar__sealed-icon" title="Sealed">🔒</span>}
+          <span className="toolbar__version-badge">#{currentVersionId.slice(0, 8)}</span>
+          {sealed && (
+            <span className="toolbar__sealed-icon" title="Sealed">🔒</span>
+          )}
         </div>
       )}
 
@@ -83,13 +92,21 @@ export function Toolbar({ connected, onSubmit }: ToolbarProps) {
         Versions
       </button>
 
+      {/* Theme toggle */}
+      <button
+        className="toolbar__icon-btn"
+        onClick={toggleTheme}
+        title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+        aria-label="Toggle theme"
+      >
+        {theme === 'dark' ? '☀' : '☾'}
+      </button>
+
       {/* Connection status */}
-      <span className="toolbar__status">
+      <span className="toolbar__status" title={connected ? 'Connected' : 'Disconnected'}>
         <span
           className={`toolbar__status-dot ${
-            connected
-              ? 'toolbar__status-dot--connected'
-              : 'toolbar__status-dot--disconnected'
+            connected ? 'toolbar__status-dot--connected' : 'toolbar__status-dot--disconnected'
           }`}
         />
         {connected ? 'Connected' : 'Disconnected'}
